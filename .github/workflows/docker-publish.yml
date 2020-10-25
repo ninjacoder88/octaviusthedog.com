@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  #push:
+  #  branches: [ main ]
+  workflow_run:
+    workflows: [".NET Core CI"]
+    branches: [main]
+    types: 
+      - completed
+      #- requested
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Build the Docker image
+      run: docker build ./src/OctaviusTheDog -t octavius
+
+    - name: Log into registry
+      run: echo "${{ secrets.nsc_key }}" | docker login ninjasoftware.azurecr.io -u ninjasoftware --password-stdin
+    
+    - name: Push the docker image
+      run: |
+        docker tag octavius ninjasoftware.azurecr.io/octavius
+        docker push ninjasoftware.azurecr.io/octavius
