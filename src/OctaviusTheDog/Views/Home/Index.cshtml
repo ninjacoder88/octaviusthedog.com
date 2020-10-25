@@ -1,18 +1,10 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-    
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Home";
     Layout = "_Layout";
 }
 
-<div id="container">
-    <button type="button" class="btn btn-primary" data-bind="click: go">Go</button>
+<script type="text/javascript" src="~/js/app/HomeIndexViewModel.js"></script>
 
-    <div class="row" data-bind="foreach: pictures">
-        <div class="col-md-3 com-sm-4 col-xs-6">
-
-        </div>
-    </div>
-
-</div><!--/container-->
+<div class="jumbotron">
+    <h1 class="text-center">Octavius The Dog</h1>
+</div>

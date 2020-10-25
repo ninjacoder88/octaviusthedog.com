@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewData["Title"] = "Pictures";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="~/js/app/PicturesViewModel.js"></script>
+
+<h1>Pictures</h1>
+
+<div id="container">
+    <div class="row" data-bind="foreach: pictures">
+        <div class="col-md-3 com-sm-4 col-xs-6">
+            <div class="card">
+                <img data-bind="attr: {src: url}" class="img-fluid" />
+                <div class="card-body">
+                    <h5 class="card-title"><span data-bind="text: name"></span></h5>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div><!--/container-->
