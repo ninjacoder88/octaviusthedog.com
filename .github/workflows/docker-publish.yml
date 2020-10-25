@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: Build the Docker image
-      run: docker build ./src/OctaviusTheDog -t octavius
+      run: docker build ./src -t octavius
 
     - name: Log into registry
       run: echo "${{ secrets.nsc_key }}" | docker login ninjasoftware.azurecr.io -u ninjasoftware --password-stdin
