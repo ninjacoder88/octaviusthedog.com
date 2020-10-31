@@ -4,9 +4,8 @@
 
         function Picture(obj) {
             var self = this;
-            self.baseUrl = obj.baseUrl;
-            self.name = obj.name;
-            self.url = self.baseUrl + self.name;
+            self.url = obj.url;
+            self.name = obj.blobName;
         }
 
         function ViewModel() {
@@ -21,12 +20,13 @@
                 $.ajax({
                     method: "GET",
                     url: "/home/GetPictures"
-                }).done(function (response) {
-                    if (response.success === true) {
-                        //console.log(response.names);
-                        response.names.forEach(name => {
-                            self.pictures.push(new Picture({ baseUrl: response.baseUrl, name: name }))
+                }).done(function (picturesResponse) {
+                    if (picturesResponse.success === true) {
+
+                        picturesResponse.pictures.forEach(picture => {
+                            self.pictures.push(new Picture(picture));
                         });
+
                     } else {
                         window.alert("Something went wrong while loading the pictures");
                     }

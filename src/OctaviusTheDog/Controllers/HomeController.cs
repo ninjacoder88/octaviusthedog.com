@@ -1,20 +1,21 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using OctaviusTheDog.Models;
 
 namespace OctaviusTheDog.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IConfiguration configuration;
+        private readonly IConnectionStringProvider connectionStringProvider;
 
-        public HomeController(IConfiguration configuration)
+        public HomeController(IConnectionStringProvider connectionStringProvider)
         {
-            this.configuration = configuration;
+            this.connectionStringProvider = connectionStringProvider;
         }
 
         [HttpGet]
@@ -41,38 +42,38 @@ namespace OctaviusTheDog.Controllers
             int? segmentSize = 10;
 
             const string ContainerName = "pictures";
-            string storageAccountUrl = $"https://octaviusthedog.blob.core.windows.net/{ContainerName}/";
  
             try
             {
-                BlobServiceClient blobServiceClient = new BlobServiceClient(configuration.GetConnectionString("StorageAccount"));
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(ContainerName);
+                var blobContainerClient = new BlobServiceClient(connectionStringProvider.GetConnectionString("StorageAccount"))
+                    .GetBlobContainerClient(ContainerName);
+
+                PicturesReponse reponse = new PicturesReponse(true);
 
                 do
                 {
                     var blobs = blobContainerClient.GetBlobsAsync().AsPages(continuationToken, segmentSize);
 
-                    PicturesReponse picturesReponse = new PicturesReponse(true);
-                    picturesReponse.BaseUrl = storageAccountUrl;
-
                     await foreach (Page<BlobItem> page in blobs)
                     {
                         foreach (BlobItem blobItem in page.Values)
                         {
-                            picturesReponse.Names.Add(blobItem.Name);
+                            var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+
+                            reponse.Pictures.Add(new PictureBlob() { BlobName = blobItem.Name, Url = blobClient.Uri.ToString() });
                         }
                         continuationToken = page.ContinuationToken;
                     }
 
-                    return Json(picturesReponse);
-
                 } while (continuationToken != "");
+
+                return Json(reponse);
             }
             catch(RequestFailedException ex)
             {
                 return Json(new PicturesReponse(false) { Message = "An error occurred while getting pictures" });
             }
-            catch
+            catch(Exception)
             {
                 return Json(new PicturesReponse(false) { Message = "An unknown error occurred while getting pictures" });
             }

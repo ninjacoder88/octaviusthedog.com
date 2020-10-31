@@ -7,15 +7,12 @@ namespace OctaviusTheDog.Models
         public PicturesReponse(bool success)
         {
             Success = success;
-            Names = new List<string>();
+            Pictures = new List<PictureBlob>();
         }
 
-        public bool Success { get; }
+        public bool Success { get; set; }
 
-        public string Message { get; set; }
-
-        public string BaseUrl { get; set; }
-
-        public List<string> Names { get; set; }
+        public List<PictureBlob> Pictures { get; set; }
+        public string Message { get; internal set; }
     }
 }
