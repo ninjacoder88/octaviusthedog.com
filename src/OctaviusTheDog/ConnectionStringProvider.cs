@@ -23,12 +23,12 @@ namespace OctaviusTheDog
 
         public string GetConnectionString(string name)
         {
-            if (webHostEnvironment.IsEnvironment("Local"))
+            if (webHostEnvironment.IsProduction())
             {
-                return configuration.GetConnectionString(name);
+                return Environment.GetEnvironmentVariable($"CUSTOMCONNSTR_{name}");
             }
 
-            return Environment.GetEnvironmentVariable($"CUSTOMCONNSTR_{name}");
+            return configuration.GetConnectionString(name);
         }
     }
 }
