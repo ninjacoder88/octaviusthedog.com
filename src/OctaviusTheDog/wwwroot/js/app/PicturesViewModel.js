@@ -1,5 +1,5 @@
-﻿require(["jquery", "knockout"],
-    function ($, ko) {
+﻿require(["jquery", "knockout", "octaviusModal", "bootstrap"],
+    function ($, ko, modal) {
         "use strict";
 
         function Picture(obj) {
@@ -20,19 +20,16 @@
                 $.ajax({
                     method: "GET",
                     url: "/home/GetPictures"
-                }).done(function (picturesResponse) {
-                    if (picturesResponse.success === true) {
-
-                        picturesResponse.pictures.forEach(picture => {
+                }).done(function (data) {
+                    if (data.success === true) {
+                        data.pictures.forEach(picture => {
                             self.pictures.push(new Picture(picture));
                         });
-
                     } else {
-                        window.alert("Something went wrong while loading the pictures");
+                        modal.showModal(data.message);
                     }
                 }).fail(function (a, b, c) {
-                    //console.error({ a: a, b: b, c: c });
-                    window.alert("Something went wrong while loading the pictures");
+                    modal.showModal("Something seems to have gone wrong while loading pictures");
                 }).always(function () {
                     self.loading(false);
                 });

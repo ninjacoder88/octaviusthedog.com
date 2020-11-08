@@ -36,12 +36,17 @@ namespace OctaviusTheDog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPictures()
+        public async Task<IActionResult> GetPictures([FromQuery] int pageNumber)
         {
             string continuationToken = string.Empty;
             int? segmentSize = 10;
 
             const string ContainerName = "pictures";
+
+            if (pageNumber < 1)
+                pageNumber = 1;
+
+            int currentPage = 0;
  
             try
             {
@@ -52,20 +57,29 @@ namespace OctaviusTheDog.Controllers
 
                 do
                 {
-                    var blobs = blobContainerClient.GetBlobsAsync(prefix: "otdscaled_").AsPages(continuationToken, segmentSize);
+                    currentPage++;
+                    var blobs = blobContainerClient.GetBlobsAsync(prefix: "modified_").AsPages(continuationToken, segmentSize);
 
                     await foreach (Page<BlobItem> page in blobs)
                     {
-                        foreach (BlobItem blobItem in page.Values)
+                        if(pageNumber == currentPage)
                         {
-                            var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+                            foreach (BlobItem blobItem in page.Values)
+                            {
+                                var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
 
-                            reponse.Pictures.Add(new PictureBlob() { BlobName = blobItem.Name, Url = blobClient.Uri.ToString() });
+                                reponse.Pictures.Add(new PictureBlob() { BlobName = blobItem.Name, Url = blobClient.Uri.ToString() });
+                            }
                         }
-                        continuationToken = page.ContinuationToken;
+                        else
+                        {
+                            continuationToken = page.ContinuationToken;
+                        }
+
+                        currentPage++;
                     }
 
-                } while (continuationToken != "");
+                } while (continuationToken != "" && currentPage < pageNumber);
 
                 return Json(reponse);
             }

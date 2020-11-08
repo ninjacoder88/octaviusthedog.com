@@ -1,5 +1,5 @@
-﻿require(["jquery", "knockout"],
-    function ($, ko) {
+﻿require(["jquery", "knockout", "octaviusModal", "bootstrap"],
+    function ($, ko, modal) {
         "use strict";
 
         function ViewModel() {
@@ -20,9 +20,14 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                }).done(function (response) {
-                    alert("success");
-                }).fail(function () {
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data.success === true) {
+                        //remove files
+                        element.value = null;
+                    } else {
+                        modal.showModal({ title: "Error", message: data.message });
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
                     alert("failure");
                 });
             }

@@ -9,11 +9,19 @@
 <h1>Admin</h1>
 
 <div id="container">
-    <form id="form" name="form" action="/Upload" enctype="multipart/form-data" method="post">
-        <div class="form-group">
-            <label>Upload</label>
-            <input type="file" id="fileUpload" class="form-control" />
-            <button type="button" class="btn btn-primary" data-bind="click: upload">Go</button>
+    <div class="row">
+        <div class="col-md-4 col-sm-8 col-12">
+            <form id="form" name="form" action="/Upload" enctype="multipart/form-data" method="post">
+                <div class="form-group">
+                    <label>Upload</label>
+                    <div class="input-group mb-3">
+                        <input type="file" id="fileUpload" class="form-control" />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary" data-bind="click: upload">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div> 
 </div>

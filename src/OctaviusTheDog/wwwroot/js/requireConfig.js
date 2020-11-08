@@ -4,7 +4,8 @@
         //app: "../app",
         knockout: "https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min",
         jquery: "https://code.jquery.com/jquery-3.5.1.min",
-        bootstrap: "https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        bootstrap: "https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min",
+        octaviusModal: "octaviusModal"
     },
     onNodeCreated: function (node, config, module, path) {
         var sri = {

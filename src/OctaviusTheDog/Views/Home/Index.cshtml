@@ -5,6 +5,21 @@
 
 <script type="text/javascript" src="~/js/app/HomeIndexViewModel.js"></script>
 
-<div class="jumbotron">
-    <h1 class="text-center">Octavius The Dog</h1>
-</div>
+<div id="container">
+    <div class="row" data-bind="foreach: pictures">
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="card">
+                <img data-bind="attr: {src: url}" class="img-fluid" />
+                <div class="card-body">
+                    <p class="card-text"><span data-bind="text: name"></span></p>
+                </div>
+            </div><!--/card-->
+        </div><!--/col-->
+    </div><!--/row-->
+
+    <div class="btn-group btn-block" role="group">
+        <button type="button" class="btn btn-outline-secondary text-white" data-bind="click: previous">Previous</button>
+        <button type="button" class="btn btn-outline-secondary text-white" data-bind="click: next">Next</button>
+    </div>
+    
+</div><!--/container-->

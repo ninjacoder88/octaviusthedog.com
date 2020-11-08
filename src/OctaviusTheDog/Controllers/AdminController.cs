@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OctaviusTheDog.Extensions;
+using OctaviusTheDog.Models;
 using OctaviusTheDog.Utility;
 
 namespace OctaviusTheDog.Controllers
@@ -20,6 +21,7 @@ namespace OctaviusTheDog.Controllers
             _webHostEnvironment = webHostEnvironment;
             _connectionStringProvider = connectionStringProvider;
             _imageResizer = new ImageResizer();
+            _blobServiceClient = new BlobServiceClient(_connectionStringProvider.GetConnectionString("StorageAccount"));
         }
 
         [HttpGet]
@@ -35,13 +37,15 @@ namespace OctaviusTheDog.Controllers
 
             try
             {
-                var blobContainerClient = new BlobServiceClient(_connectionStringProvider.GetConnectionString("StorageAccount"))
-                    .GetBlobContainerClient(ContainerName);
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
 
                 foreach (IFormFile source in files)
                 {
                     string fileName = source.GetFileName();
                     var fullFilePath = GetFullFilePath(fileName);
+
+                    var dateString = DateTime.Now.ToString("yyyyMMddhhmmss");
+                    var newFileName = fileName.Replace(" ", string.Empty).Replace("-", string.Empty).ToLower();
 
                     byte[] originalFile;
                     Image image;
@@ -54,42 +58,43 @@ namespace OctaviusTheDog.Controllers
 
                     var originalHeight = image.Height;
                     var originalWidth = image.Width;
+                    const int MaxWidth = 250;
 
-                    double scaledHeight = originalHeight;
-                    double scaledWidth = 250;
-                    if (originalWidth > scaledWidth)
+                    if(originalWidth > MaxWidth)
                     {
-                        //scale down
+                        double scaledWidth = 250;
+
                         double scaleFactor = originalWidth / scaledWidth;
-                        scaledHeight = originalHeight / scaleFactor;
-                    }
+                        double scaledHeight = originalHeight / scaleFactor;
 
-                    var bitmap = _imageResizer.ResizeImage(image, (int)scaledWidth, (int)scaledHeight);
-                    byte[] scaledFile;
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        bitmap.Save(memoryStream, ImageFormat.Png);
-                        scaledFile = memoryStream.ToArray();
-                    }
+                        var bitmap = _imageResizer.ResizeImage(image, (int)scaledWidth, (int)scaledHeight);
 
-                    using (var stream = new MemoryStream(scaledFile))
-                    {
-                        await blobContainerClient.UploadBlobAsync($"otdscaled_{fileName}", stream);
+                        byte[] scaledFile;
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            bitmap.Save(memoryStream, ImageFormat.Png);
+                            scaledFile = memoryStream.ToArray();
+                        }
+
+                        using (var stream = new MemoryStream(scaledFile))
+                        {
+                            await blobContainerClient.UploadBlobAsync($"modified_{dateString}_{newFileName}", stream);
+                        }
                     }
 
                     using (var stream = new MemoryStream(originalFile))
                     {
-                        await blobContainerClient.UploadBlobAsync($"original_{fileName}", stream);
+                        await blobContainerClient.UploadBlobAsync($"original_{dateString}_{newFileName}", stream);
                     }
 
                     System.IO.File.Delete(fullFilePath);
                 }
 
-                return new JsonResult("");
+                return new JsonResult(new UploadResponse(true));
             }
             catch(Exception e)
             {
-                return new JsonResult("");
+                return new JsonResult(new UploadResponse(false) { Message = e.ToString() });
             }
         }
 
@@ -98,6 +103,7 @@ namespace OctaviusTheDog.Controllers
             return _webHostEnvironment.WebRootPath + "\\uploads\\" + filename;
         }
 
+        private BlobServiceClient _blobServiceClient;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IConnectionStringProvider _connectionStringProvider;
         private ImageResizer _imageResizer;
