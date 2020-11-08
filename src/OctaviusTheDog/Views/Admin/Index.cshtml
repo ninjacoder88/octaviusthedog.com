@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="~/js/app/AdminIndexViewModel.js"></script>
+
+<h1>Admin</h1>
+
+<div id="container">
+    <form id="form" name="form" action="/Upload" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+            <label>Upload</label>
+            <input type="file" id="fileUpload" class="form-control" />
+            <button type="button" class="btn btn-primary" data-bind="click: upload">Go</button>
+        </div>
+    </form>
+</div>

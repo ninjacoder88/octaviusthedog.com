@@ -52,7 +52,7 @@ namespace OctaviusTheDog.Controllers
 
                 do
                 {
-                    var blobs = blobContainerClient.GetBlobsAsync().AsPages(continuationToken, segmentSize);
+                    var blobs = blobContainerClient.GetBlobsAsync(prefix: "otdscaled_").AsPages(continuationToken, segmentSize);
 
                     await foreach (Page<BlobItem> page in blobs)
                     {
