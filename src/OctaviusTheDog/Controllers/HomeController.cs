@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
@@ -25,21 +24,10 @@ namespace OctaviusTheDog.Controllers
         }
 
         [HttpGet]
-        public IActionResult About()
-        {
-            return View();
-        }
-
-        public IActionResult Pictures()
-        {
-            return View();
-        }
-
-        [HttpGet]
         public async Task<IActionResult> GetPictures([FromQuery] int pageNumber)
         {
             string continuationToken = string.Empty;
-            int? segmentSize = 10;
+            int? segmentSize = 12;
 
             const string ContainerName = "pictures";
 
