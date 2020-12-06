@@ -54,7 +54,8 @@
             };
 
             self.initialize = function () {
-                getPictures();
+                getPictures(pageNumber, function () {
+                });
             };
 
             self.initialize();
