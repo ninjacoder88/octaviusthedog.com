@@ -15,7 +15,7 @@
             var pageNumber = 1;
 
             function getPictures(pageNumber, successFunc) {
-                self.loading = true;
+                self.loading(true);
                 self.pictures([]);
 
                 $.ajax({
