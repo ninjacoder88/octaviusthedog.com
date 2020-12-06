@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using OctaviusTheDog.DataAccess.AzureStorage;
+using System.Collections.Generic;
 
 namespace OctaviusTheDog.Models
 {
@@ -13,6 +14,7 @@ namespace OctaviusTheDog.Models
         public bool Success { get; set; }
 
         public List<PictureBlob> Pictures { get; set; }
+
         public string Message { get; internal set; }
     }
 }

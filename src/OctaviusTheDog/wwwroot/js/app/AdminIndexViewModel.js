@@ -4,6 +4,7 @@
 
         function ViewModel() {
             var self = this;
+            self.title = ko.observable("");
 
             self.upload = function () {
                 var element = document.getElementById("fileUpload");
@@ -13,6 +14,7 @@
                 for (var f = 0; f < files.length; f++) {
                     formData.append("files", files[f]);
                 }
+                formData.append("title", self.title());
 
                 $.ajax({
                     url: "/admin/upload",
@@ -24,6 +26,7 @@
                     if (data.success === true) {
                         //remove files
                         element.value = null;
+                        self.title("");
                     } else {
                         modal.showModal({ title: "Error", message: data.message });
                     }

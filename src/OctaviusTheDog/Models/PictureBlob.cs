@@ -7,7 +7,7 @@ namespace OctaviusTheDog.Models
 {
     public class PictureBlob
     {
-        public string BlobName { get; set; }
+        public string Title { get; set; }
 
         public string Url { get; set; }
     }

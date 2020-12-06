@@ -1,20 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
+using OctaviusTheDog.DataAccess.AzureCosmos;
+using OctaviusTheDog.DataAccess.AzureStorage;
 using OctaviusTheDog.Models;
 
 namespace OctaviusTheDog.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IConnectionStringProvider connectionStringProvider;
-
-        public HomeController(IConnectionStringProvider connectionStringProvider)
+        public HomeController(IAzureStorageRepository azureStorageRepository, IAzureCosmosRepository azureCosmosRepository)
         {
-            this.connectionStringProvider = connectionStringProvider;
+            _azureStorageRepository = azureStorageRepository;
+            _azureCosmosRepository = azureCosmosRepository;
         }
 
         [HttpGet]
@@ -26,59 +25,34 @@ namespace OctaviusTheDog.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPictures([FromQuery] int pageNumber)
         {
-            string continuationToken = string.Empty;
-            int? segmentSize = 12;
-
-            const string ContainerName = "pictures";
-
             if (pageNumber < 1)
                 pageNumber = 1;
 
-            int currentPage = 0;
- 
             try
             {
-                var blobContainerClient = new BlobServiceClient(connectionStringProvider.GetConnectionString("StorageAccount"))
-                    .GetBlobContainerClient(ContainerName);
+                var images = await _azureStorageRepository.GetImages("pictures", "modified_", 12, pageNumber);
 
-                PicturesReponse reponse = new PicturesReponse(true);
-
-                do
+                List<PictureBlob> pictures = new List<PictureBlob>();
+                foreach(var image in images)
                 {
-                    currentPage++;
-                    var blobs = blobContainerClient.GetBlobsAsync(prefix: "modified_").AsPages(continuationToken, segmentSize);
+                    var imageId = image.BlobName.Replace("modified_", string.Empty);
+                    var azureImage = await _azureCosmosRepository.LoadAsync(imageId);
 
-                    await foreach (Page<BlobItem> page in blobs)
-                    {
-                        if(pageNumber == currentPage)
-                        {
-                            foreach (BlobItem blobItem in page.Values)
-                            {
-                                var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+                    if (azureImage == null)
+                        continue;
 
-                                reponse.Pictures.Add(new PictureBlob() { BlobName = blobItem.Name, Url = blobClient.Uri.ToString() });
-                            }
-                        }
-                        else
-                        {
-                            continuationToken = page.ContinuationToken;
-                        }
+                    pictures.Add(new PictureBlob() { Title = azureImage.Title, Url = image.Url });
+                }
 
-                        currentPage++;
-                    }
-
-                } while (continuationToken != "" && currentPage < pageNumber);
-
-                return Json(reponse);
+                return Json(new PicturesReponse(true) {Pictures = pictures });
             }
-            catch(RequestFailedException ex)
+            catch(Exception ex)
             {
-                return Json(new PicturesReponse(false) { Message = "An error occurred while getting pictures" });
-            }
-            catch(Exception)
-            {
-                return Json(new PicturesReponse(false) { Message = "An unknown error occurred while getting pictures" });
+                return Json(new PicturesReponse(false) { Message = $"An unknown error occurred while getting pictures\r\n{ex}" });
             }
         }
+
+        private readonly IAzureStorageRepository _azureStorageRepository;
+        private readonly IAzureCosmosRepository _azureCosmosRepository;
     }
 }

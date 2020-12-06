@@ -5,7 +5,7 @@
         function Picture(obj) {
             var self = this;
             self.url = obj.url;
-            self.name = obj.blobName;
+            self.title = obj.title;
         }
 
         function ViewModel() {

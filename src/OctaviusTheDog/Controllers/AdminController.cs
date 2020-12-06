@@ -8,6 +8,8 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OctaviusTheDog.DataAccess.AzureCosmos;
+using OctaviusTheDog.DataAccess.AzureStorage;
 using OctaviusTheDog.Extensions;
 using OctaviusTheDog.Models;
 using OctaviusTheDog.Utility;
@@ -16,12 +18,12 @@ namespace OctaviusTheDog.Controllers
 {
     public class AdminController : Controller
     {
-        public AdminController(IWebHostEnvironment webHostEnvironment, IConnectionStringProvider connectionStringProvider)
+        public AdminController(IWebHostEnvironment webHostEnvironment, IAzureCosmosRepository azureCosmosRepository, IAzureStorageRepository azureStorageRepository)
         {
             _webHostEnvironment = webHostEnvironment;
-            _connectionStringProvider = connectionStringProvider;
+            _azureCosmosRepository = azureCosmosRepository;
+            _azureStorageRepository = azureStorageRepository;
             _imageResizer = new ImageResizer();
-            _blobServiceClient = new BlobServiceClient(_connectionStringProvider.GetConnectionString("StorageAccount"));
         }
 
         [HttpGet]
@@ -31,21 +33,16 @@ namespace OctaviusTheDog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(IList<IFormFile> files)
+        public async Task<IActionResult> Upload(IList<IFormFile> files, string title)
         {
-            const string ContainerName = "pictures";
-
             try
             {
-                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
-
                 foreach (IFormFile source in files)
                 {
                     string fileName = source.GetFileName();
                     var fullFilePath = GetFullFilePath(fileName);
 
-                    var dateString = DateTime.Now.ToString("yyyyMMddhhmmss");
-                    var newFileName = fileName.Replace(" ", string.Empty).Replace("-", string.Empty).ToLower();
+                    var imageId = Guid.NewGuid().ToString();
 
                     byte[] originalFile;
                     Image image;
@@ -76,16 +73,11 @@ namespace OctaviusTheDog.Controllers
                             scaledFile = memoryStream.ToArray();
                         }
 
-                        using (var stream = new MemoryStream(scaledFile))
-                        {
-                            await blobContainerClient.UploadBlobAsync($"modified_{dateString}_{newFileName}", stream);
-                        }
+                        await _azureStorageRepository.UploadImageAsync("pictures", $"modified_{imageId}", scaledFile);
                     }
 
-                    using (var stream = new MemoryStream(originalFile))
-                    {
-                        await blobContainerClient.UploadBlobAsync($"original_{dateString}_{newFileName}", stream);
-                    }
+                    await _azureStorageRepository.UploadImageAsync("pictures", $"original_{imageId}", originalFile);
+                    await _azureCosmosRepository.SaveAsync(new AzureImage() {OriginalFileName = fileName, Title = title, UploadTime = DateTime.Now, _id = imageId });
 
                     System.IO.File.Delete(fullFilePath);
                 }
@@ -103,9 +95,9 @@ namespace OctaviusTheDog.Controllers
             return _webHostEnvironment.WebRootPath + "\\uploads\\" + filename;
         }
 
-        private BlobServiceClient _blobServiceClient;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IConnectionStringProvider _connectionStringProvider;
+        private readonly IAzureCosmosRepository _azureCosmosRepository;
+        private readonly IAzureStorageRepository _azureStorageRepository;
         private ImageResizer _imageResizer;
     }
 }
