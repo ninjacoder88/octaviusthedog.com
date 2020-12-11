@@ -30,18 +30,15 @@ namespace OctaviusTheDog.Controllers
 
             try
             {
-                var images = await _azureStorageRepository.GetImages("pictures", "modified_", 12, pageNumber);
+                var azureImages = await _azureCosmosRepository.LoadByPageAsync(12, pageNumber);
 
                 List<PictureBlob> pictures = new List<PictureBlob>();
-                foreach(var image in images)
+                foreach (var azureImage in azureImages)
                 {
-                    var imageId = image.BlobName.Replace("modified_", string.Empty);
-                    var azureImage = await _azureCosmosRepository.LoadAsync(imageId);
+                    var previewImageBlob = _azureStorageRepository.GetImage("pictures", $"modified_{azureImage._id}");
+                    var originalImageBlob = _azureStorageRepository.GetImage("pictures", $"original_{azureImage._id}");
 
-                    if (azureImage == null)
-                        continue;
-
-                    pictures.Add(new PictureBlob() { Title = azureImage.Title, Url = image.Url });
+                    pictures.Add(new PictureBlob() { Title = azureImage.Title, PreviewUrl = previewImageBlob.Url, OriginalUrl = originalImageBlob.Url });
                 }
 
                 return Json(new PicturesReponse(true) {Pictures = pictures });

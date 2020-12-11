@@ -4,8 +4,22 @@
 
         function Picture(obj) {
             var self = this;
-            self.url = obj.url;
+            self.previewUrl = obj.previewUrl;
+            self.originalUrl = obj.originalUrl;
             self.title = obj.title;
+
+            self.show = function () {
+                var imageElement = document.getElementById("picture-modal-image");
+                imageElement.setAttribute("src", "");
+
+                var titleElement = document.getElementById("picture-modal-title");
+                titleElement.innerText = "";
+
+                imageElement.setAttribute("src", self.originalUrl);
+                titleElement.innerText = self.title;
+
+                $("#picture-modal").modal("show");
+            };
         }
 
         function ViewModel() {

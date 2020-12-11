@@ -9,10 +9,7 @@
     <div class="row" data-bind="foreach: pictures">
         <div class="col-md-3 col-sm-4 col-6">
             <div class="card mb-3">
-                <img data-bind="attr: {src: url}" class="img-fluid" />
-                <div class="card-body">
-                    <p class="card-text" style="font-size: 10px"><span data-bind="text: title"></span></p>
-                </div>
+                <img data-bind="attr: {src: previewUrl}, click: show" class="img-fluid"/>
             </div><!--/card-->
         </div><!--/col-->
     </div><!--/row-->
@@ -29,5 +26,21 @@
     <p class="text-white">Birthday: October 8, 2020</p>
     <p class="text-white">Breed: Bernese Mountain Dog</p>
     <p class="text-white">Breeder: <a href="https://bernerbabies.com">Berner Babies</a></p>
+
+    <div class="modal fade" id="picture-modal" tabindex="-1" aria-labelledby="picture-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="picture-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="" class="img-fluid" id="picture-modal-image"/>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div><!--/container-->

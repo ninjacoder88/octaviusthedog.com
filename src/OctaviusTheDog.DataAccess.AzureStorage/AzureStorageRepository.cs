@@ -11,7 +11,9 @@ namespace OctaviusTheDog.DataAccess.AzureStorage
     {
         Task<string> UploadImageAsync(string containerName, string fileName, byte[] imageBytes);
 
-        Task<List<ImageBlob>> GetImages(string containerName, string prefix, int segmentSize, int pageNumber);
+        Task<List<ImageBlob>> GetImagesAsync(string containerName, string prefix, int segmentSize, int pageNumber);
+
+        ImageBlob GetImage(string containerName, string blobName);
     }
 
     public class AzureStorageRepository : IAzureStorageRepository
@@ -32,7 +34,14 @@ namespace OctaviusTheDog.DataAccess.AzureStorage
             }
         }
 
-        public async Task<List<ImageBlob>> GetImages(string containerName, string prefix, int segmentSize, int pageNumber)
+        public ImageBlob GetImage(string containerName, string blobName)
+        {
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+            return new ImageBlob(blobName, blobClient.Uri.ToString());
+        }
+
+        public async Task<List<ImageBlob>> GetImagesAsync(string containerName, string prefix, int segmentSize, int pageNumber)
         {
             string continuationToken = string.Empty;
             int currentPage = 1;
