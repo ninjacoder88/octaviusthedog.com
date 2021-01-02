@@ -10,10 +10,10 @@
                 var messageElement = document.getElementById("octavius-modal-message");
 
                 if (obj.title) {
-                    titleElement.value = obj.title;
+                    titleElement.innerText = obj.title;
                 }
                 if (obj.message) {
-                    messageElement.value = obj.message;
+                    messageElement.innerText = obj.message;
                 }
 
                 $("#octavius-modal").modal("show");
