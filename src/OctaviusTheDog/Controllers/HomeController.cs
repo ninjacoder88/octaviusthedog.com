@@ -19,7 +19,8 @@ namespace OctaviusTheDog.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            var model = new HomeIndexModel();
+            return View(model);
         }
 
         [HttpGet]
