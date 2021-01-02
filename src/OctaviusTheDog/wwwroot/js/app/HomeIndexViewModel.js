@@ -26,6 +26,7 @@
             var self = this;
             self.pictures = ko.observableArray([]);
             self.loading = ko.observable(false);
+            self.emailAddress = ko.observable("");
             var pageNumber = 1;
 
             function getPictures(pageNumber, successFunc) {
@@ -45,11 +46,34 @@
                         modal.showModal(data.message);
                     }
                 }).fail(function (a, b, c) {
-                    modal.showModal("Something seems to have gone wrong while loading pictures");
+                    modal.showModal({ title: "Error", message: "Something seems to have gone wrong while loading pictures"});
                 }).always(function () {
                     self.loading(false);
                 });
-            }
+            };
+
+            self.subscribe = function() {
+                if (self.emailAddress() === "") {
+                    return;
+                }
+
+                if (self.emailAddress().indexOf("@") === -1) {
+                    return;
+                }
+
+                $.ajax({
+                    method: "POST",
+                    url: "/home/Subscribe",
+                    data: JSON.stringify({ emailAddress: self.emailAddress() }),
+                    dataType: "json",
+                    contentType: "application/json"
+                }).done(function () {
+                    self.emailAddress("");
+                    modal.showModal({ title: "Success", message: "Thank you for subscribing"});
+                }).fail(function (a, b, c) {
+                    modal.showModal({ title: "Error", message: "Something seems to have gone wrong while subscribing" });
+                })
+            };
 
             self.next = function () {
                 var nextPage = pageNumber + 1;
@@ -76,5 +100,4 @@
         };
 
         ko.applyBindings(new ViewModel(), document.getElementById("container"));
-
     });

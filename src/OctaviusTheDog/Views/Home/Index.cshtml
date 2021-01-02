@@ -1,16 +1,17 @@
 ﻿@model OctaviusTheDog.Models.HomeIndexModel
+@using OctaviusTheDog.Utility;
 @{
     ViewData["Title"] = "Home";
     Layout = "_Layout";
 }
 
-<script type="text/javascript" src="~/js/app/HomeIndexViewModel.js"></script>
+<script type="text/javascript" src="~/js/app/HomeIndexViewModel.js?@VersionArgs.Version"></script>
 
 <div id="container">
     <div class="row" data-bind="foreach: pictures">
         <div class="col-md-3 col-sm-4 col-6">
             <div class="card mb-3">
-                <img data-bind="attr: {src: previewUrl}, click: show" class="img-fluid"/>
+                <img data-bind="attr: {src: previewUrl}, click: show" class="img-fluid" />
             </div><!--/card-->
         </div><!--/col-->
     </div><!--/row-->
@@ -19,6 +20,18 @@
         <button type="button" class="btn btn-outline-secondary text-white" data-bind="click: previous">Previous</button>
         <button type="button" class="btn btn-outline-secondary text-white" data-bind="click: next">Next</button>
     </div>
+
+    <hr />
+
+    <p class="text-white">Subscribe to get updates when new pictures are posted</p>
+    <form>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Email Address" aria-label="Email Address" aria-describedby="button-addon2" data-bind="value: emailAddress">
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="button" id="button-addon2" data-bind="click: subscribe">Subscribe</button>
+            </div>
+        </div>
+    </form>
 
     <hr />
 
@@ -39,7 +52,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <img src="" class="img-fluid" id="picture-modal-image"/>
+                    <img src="" class="img-fluid" id="picture-modal-image" />
                 </div>
             </div>
         </div>

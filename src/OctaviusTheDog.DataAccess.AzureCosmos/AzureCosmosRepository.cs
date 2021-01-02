@@ -12,6 +12,8 @@ namespace OctaviusTheDog.DataAccess.AzureCosmos
         Task<AzureImage> LoadByIdAsync(string id);
 
         Task<List<AzureImage>> LoadByPageAsync(int pageSize, int pageNumber);
+
+        Task SaveAsync(Subscriber subscriber);
     }
 
     public class AzureCosmosRepository : IAzureCosmosRepository
@@ -54,6 +56,14 @@ namespace OctaviusTheDog.DataAccess.AzureCosmos
             var database = client.GetDatabase("OctaviusTheDog");
             var collection = database.GetCollection<AzureImage>("AzureImages");
             await collection.InsertOneAsync(azureImage);
+        }
+
+        public async Task SaveAsync(Subscriber subscriber)
+        {
+            var client = new MongoClient(_connectionString);
+            var database = client.GetDatabase("OctaviusTheDog");
+            var collection = database.GetCollection<Subscriber>("Subscribers");
+            await collection.InsertOneAsync(subscriber);
         }
 
         private string _connectionString;

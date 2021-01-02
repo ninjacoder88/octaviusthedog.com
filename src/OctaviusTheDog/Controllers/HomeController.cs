@@ -23,6 +23,30 @@ namespace OctaviusTheDog.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Subscribe([FromBody] SubscribeRequest request)
+        {
+            try
+            {
+                var model = new Subscriber();
+                model.EmailAddress = request.EmailAddress;
+                model._id = Guid.NewGuid().ToString();
+
+                if (string.IsNullOrEmpty(request.EmailAddress))
+                    return Json("Email Address must have a value");
+
+                if (!request.EmailAddress.Contains("@"))
+                    return Json("Invalid email address");
+
+                await _azureCosmosRepository.SaveAsync(model);
+                return new JsonResult(true);
+            }
+            catch(Exception ex)
+            {
+                return Json(new PicturesReponse(false) { Message = $"An unknown error occurred while subscribing\r\n{ex}" });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetPictures([FromQuery] int pageNumber)
         {
