@@ -25,7 +25,7 @@ namespace OctaviusTheDog
             services.AddControllersWithViews();
             services.AddScoped<IAzureCosmosRepository, AzureCosmosRepository>(c => new AzureCosmosRepository(GetConnectionString("CosmosDB")))
                     .AddScoped<IAzureStorageRepository, AzureStorageRepository>(c => new AzureStorageRepository(GetConnectionString("StorageAccount")))
-                    .AddScoped<IMailSender, MailSender>();
+                    .AddScoped<IMailSender, MailSender>(c => new MailSender(GetConnectionString("SendGridKey")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

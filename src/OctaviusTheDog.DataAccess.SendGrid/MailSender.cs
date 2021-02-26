@@ -12,10 +12,14 @@ namespace OctaviusTheDog.DataAccess.SendGrid
 
     public class MailSender : IMailSender
     {
+        public MailSender(string apiKey)
+        {
+            _apiKey = apiKey;
+        }
+        
         public async Task SendAsync(string emailAddress)
         {
-            var apiKey = "";// Environment.GetEnvironmentVariable("NAME_OF_THE_ENVIRONMENT_VARIABLE_FOR_YOUR_SENDGRID_KEY");
-            var client = new SendGridClient(apiKey);
+            var client = new SendGridClient(_apiKey);
             var from = new EmailAddress("octavius@em5694.octaviusthedog.com", "Octavius");
             var subject = "New Pictures of Octavius";
             var to = new EmailAddress(emailAddress);
@@ -37,5 +41,7 @@ namespace OctaviusTheDog.DataAccess.SendGrid
 
             return body;
         }
+
+        private string _apiKey;
     }
 }
