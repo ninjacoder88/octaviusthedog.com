@@ -12,6 +12,6 @@ namespace OctaviusTheDog.Models
 
         public string BirthdateString => Birthdate.ToString("d");
 
-        public int CurrentWeight => 25;
+        public int CurrentWeight => 63;
     }
 }
