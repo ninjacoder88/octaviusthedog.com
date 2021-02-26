@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OctaviusTheDog.DataAccess.AzureCosmos\OctaviusTheDog.DataAccess.AzureCosmos.csproj" />
     <ProjectReference Include="..\OctaviusTheDog.DataAccess.AzureStorage\OctaviusTheDog.DataAccess.AzureStorage.csproj" />
+    <ProjectReference Include="..\OctaviusTheDog.DataAccess.SendGrid\OctaviusTheDog.DataAccess.SendGrid.csproj" />
   </ItemGroup>
 
 </Project>

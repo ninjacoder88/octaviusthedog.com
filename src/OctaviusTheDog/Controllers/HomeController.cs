@@ -48,6 +48,20 @@ namespace OctaviusTheDog.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Unsubscribe([FromQuery] string emailAddress)
+        {
+            try
+            {
+                await _azureCosmosRepository.DeleteSubscriberAsync(emailAddress);
+                return RedirectToAction("Index");
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Succcess = false });
+            }
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetPictures([FromQuery] int pageNumber)
         {
             if (pageNumber < 1)

@@ -13,7 +13,10 @@ namespace OctaviusTheDog.DataAccess.AzureCosmos
 
         Task<List<AzureImage>> LoadByPageAsync(int pageSize, int pageNumber);
 
+        Task<List<Subscriber>> LoadSubscribersAsync();
+
         Task SaveAsync(Subscriber subscriber);
+        Task DeleteSubscriberAsync(string emailAddress);
     }
 
     public class AzureCosmosRepository : IAzureCosmosRepository
@@ -34,6 +37,18 @@ namespace OctaviusTheDog.DataAccess.AzureCosmos
             var skipResult = sortResult.Skip(pageSize * (pageNumber - 1));
             var limitResult = skipResult.Limit(pageSize);
             var list = await limitResult.ToListAsync();
+
+            return list;
+        }
+
+        public async Task<List<Subscriber>> LoadSubscribersAsync()
+        {
+            var client = new MongoClient(_connectionString);
+            var database = client.GetDatabase("OctaviusTheDog");
+            var collection = database.GetCollection<Subscriber>("Subscribers");
+            var cursor = await collection.FindAsync(x => x._id != "");
+
+            var list = await cursor.ToListAsync();
 
             return list;
         }
@@ -64,6 +79,14 @@ namespace OctaviusTheDog.DataAccess.AzureCosmos
             var database = client.GetDatabase("OctaviusTheDog");
             var collection = database.GetCollection<Subscriber>("Subscribers");
             await collection.InsertOneAsync(subscriber);
+        }
+
+        public async Task DeleteSubscriberAsync(string emailAddress)
+        {
+            var client = new MongoClient(_connectionString);
+            var database = client.GetDatabase("OctaviusTheDog");
+            var collection = database.GetCollection<Subscriber>("Subscribers");
+            await collection.DeleteOneAsync(x => x.EmailAddress == emailAddress);
         }
 
         private string _connectionString;

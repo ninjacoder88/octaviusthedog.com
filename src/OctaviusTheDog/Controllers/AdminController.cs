@@ -4,12 +4,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OctaviusTheDog.DataAccess.AzureCosmos;
 using OctaviusTheDog.DataAccess.AzureStorage;
+using OctaviusTheDog.DataAccess.SendGrid;
 using OctaviusTheDog.Extensions;
 using OctaviusTheDog.Models;
 using OctaviusTheDog.Utility;
@@ -18,11 +18,12 @@ namespace OctaviusTheDog.Controllers
 {
     public class AdminController : Controller
     {
-        public AdminController(IWebHostEnvironment webHostEnvironment, IAzureCosmosRepository azureCosmosRepository, IAzureStorageRepository azureStorageRepository)
+        public AdminController(IWebHostEnvironment webHostEnvironment, IAzureCosmosRepository azureCosmosRepository, IAzureStorageRepository azureStorageRepository, IMailSender mailSender)
         {
             _webHostEnvironment = webHostEnvironment;
             _azureCosmosRepository = azureCosmosRepository;
             _azureStorageRepository = azureStorageRepository;
+            _mailSender = mailSender;
             _imageResizer = new ImageResizer();
         }
 
@@ -90,6 +91,35 @@ namespace OctaviusTheDog.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> NotifyUpdate()
+        {
+            try
+            {
+                var subscribers = await _azureCosmosRepository.LoadSubscribersAsync();
+
+                var failedEmails = new List<string>();
+                foreach(var subscriber in subscribers)
+                {
+                    try
+                    {
+                        await _mailSender.SendAsync(subscriber.EmailAddress);
+                    }
+                    catch(Exception ex)
+                    {
+                        failedEmails.Add(subscriber.EmailAddress);
+                        continue;
+                    }
+                }
+
+                return new JsonResult(new { Success = true, Message = string.Join(",", failedEmails) });
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new {Success = false, Message = e.ToString()});
+            }
+        }
+
         private string GetFullFilePath(string filename)
         {
             return _webHostEnvironment.WebRootPath + "\\uploads\\" + filename;
@@ -99,5 +129,6 @@ namespace OctaviusTheDog.Controllers
         private readonly IAzureCosmosRepository _azureCosmosRepository;
         private readonly IAzureStorageRepository _azureStorageRepository;
         private ImageResizer _imageResizer;
+        private readonly IMailSender _mailSender;
     }
 }

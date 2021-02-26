@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OctaviusTheDog.DataAccess.AzureCosmos;
 using OctaviusTheDog.DataAccess.AzureStorage;
+using OctaviusTheDog.DataAccess.SendGrid;
 using System;
 
 namespace OctaviusTheDog
@@ -23,7 +24,8 @@ namespace OctaviusTheDog
         {
             services.AddControllersWithViews();
             services.AddScoped<IAzureCosmosRepository, AzureCosmosRepository>(c => new AzureCosmosRepository(GetConnectionString("CosmosDB")))
-                    .AddScoped<IAzureStorageRepository, AzureStorageRepository>(c => new AzureStorageRepository(GetConnectionString("StorageAccount")));
+                    .AddScoped<IAzureStorageRepository, AzureStorageRepository>(c => new AzureStorageRepository(GetConnectionString("StorageAccount")))
+                    .AddScoped<IMailSender, MailSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

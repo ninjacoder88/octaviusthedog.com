@@ -31,9 +31,26 @@
                         modal.showModal({ title: "Error", message: data.message });
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error({ jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown });
                     alert("failure");
                 });
-            }
+            };
+
+            self.sendUpdate = function () {
+                $.ajax({
+                    url: "/admin/NotifyUpdate",
+                    method: "GET",
+                }).done(function (data) {
+                    if (data.success === true) {
+
+                    } else {
+                        modal.showModal({ title: "Error", message: data.message });
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error({ jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown });
+                    alert("failure");
+                });
+            };
         }
 
         ko.applyBindings(new ViewModel());
