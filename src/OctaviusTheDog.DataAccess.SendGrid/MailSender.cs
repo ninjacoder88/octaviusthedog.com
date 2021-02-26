@@ -14,7 +14,7 @@ namespace OctaviusTheDog.DataAccess.SendGrid
     {
         public async Task SendAsync(string emailAddress)
         {
-            var apiKey = "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";// Environment.GetEnvironmentVariable("NAME_OF_THE_ENVIRONMENT_VARIABLE_FOR_YOUR_SENDGRID_KEY");
+            var apiKey = "";// Environment.GetEnvironmentVariable("NAME_OF_THE_ENVIRONMENT_VARIABLE_FOR_YOUR_SENDGRID_KEY");
             var client = new SendGridClient(apiKey);
             var from = new EmailAddress("octavius@em5694.octaviusthedog.com", "Octavius");
             var subject = "New Pictures of Octavius";
